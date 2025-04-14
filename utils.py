@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 
 # Load ảnh nền hoặc video frame mô phỏng
-background = cv2.imread("/background.jpg")
+# background = cv2.imread("/background.jpg")
 
 def draw_bbox(data, base_img):
     img = base_img.copy()

@@ -1,9 +1,10 @@
 import streamlit as st
 import threading
 import numpy as np
-from consumer import latest_tracks, consume_messages
-from utils import draw_bbox, generate_heatmap, detect_anomaly, background
+import cv2
 from PIL import Image
+from consumer import latest_tracks, consume_messages
+from utils import draw_bbox, generate_heatmap, detect_anomaly
 
 # Khởi động consumer
 if 'consumer_started' not in st.session_state:
@@ -11,6 +12,21 @@ if 'consumer_started' not in st.session_state:
     st.session_state['consumer_started'] = True
 
 st.title("📡 Multi-Camera Tracking Dashboard")
+
+# Upload ảnh nền
+st.sidebar.header("🖼️ Ảnh nền hệ thống")
+uploaded_file = st.sidebar.file_uploader("📷 Upload Background Image", type=["jpg", "png"])
+if uploaded_file is not None:
+    file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+    background = cv2.imdecode(file_bytes, 1)
+    st.session_state["background"] = background
+elif "background" in st.session_state:
+    background = st.session_state["background"]
+else:
+    st.warning("⚠️ Vui lòng upload ảnh nền trước khi xem dashboard.")
+    st.stop()
+
+# Bộ lọc
 st.sidebar.header("🔍 Bộ lọc")
 camera_filter = st.sidebar.selectbox("Chọn Camera ID", options=[None] + list(set(d["camera_id"] for d in latest_tracks[-500:])))
 obj_filter = st.sidebar.selectbox("Chọn Object ID", options=[None] + list(set(d["obj_id"] for d in latest_tracks[-500:])))
@@ -23,7 +39,6 @@ filtered_tracks = [
 ]
 
 st.subheader("🎯 Khung hình mới nhất")
-
 if filtered_tracks:
     latest = filtered_tracks[-1]
     img = draw_bbox(latest, background)

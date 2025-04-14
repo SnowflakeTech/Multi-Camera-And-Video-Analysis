@@ -25,7 +25,7 @@ def line_to_dict(line):
         }
     }
 
-with open("/sample_tracking_data.txt", "r") as f:
+with open("sample_tracking_data.txt", "r") as f:
     for line in f:
         data = line_to_dict(line)
         producer.send("tracking_topic", value=data)
